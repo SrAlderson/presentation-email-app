@@ -9,72 +9,32 @@ class EmailService:
     def __init__(self):
         self.sender = EmailSender()
 
-    def build_email_body_plain(self, email_data: EmailData):
-        student_list = "\n".join(
-            f"- {student.full_name}"
-            for student in email_data.students
-        )
-
-        return f"""
-    Buen día,
-
-    Cordial saludo {email_data.recipient_name},
-
-    Por medio del presente correo nos permitimos realizar la presentación
-    de los estudiantes del programa {email_data.program},
-    quienes cursan la asignatura {email_data.course}.
-
-    Listado de estudiantes:
-    {student_list}
-
-    Cordialmente,
-    Estudiantes del programa {email_data.program}
-    """.strip()
-
     #Metodo del cuerpo del correo
-    def build_email_body_html(self, email_data: EmailData):
-        student_list = "".join(
-            f"<li>{student.full_name}</li>"
-            for student in email_data.students
+    def build_email_body(self, email_data: EmailData):
+        student_list = "\r\n".join(
+          f"- {student.full_name.strip()}"  # limpio espacios extras
+          for student in email_data.students
         )
 
-        return f"""
-        <html>
-          <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-            <p>Buen día,</p>
+        # Texto del email sin indentación extra
+        return f"""Buen día,
 
-            <p>
-              Cordial saludo <strong>{email_data.recipient_name}</strong>,
-            </p>
+Cordial saludo {email_data.recipient_name},
 
-            <p>
-              Por medio del presente correo nos permitimos realizar la presentación
-              de los estudiantes del programa <strong>{email_data.program}</strong>,
-              quienes cursan la asignatura <strong>{email_data.course}</strong>.
-            </p>
+Por medio del presente correo nos permitimos realizar la presentación
+de los estudiantes del programa {email_data.program},
+quienes cursan la asignatura {email_data.course}.
 
-            <p><strong>Listado de estudiantes:</strong></p>
+Listado de estudiantes:
+{student_list}
 
-            <ul>
-              {student_list}
-            </ul>
+Adicionalmente esta es la URL donde esta el proyecto. 
+URL: https://github.com/SrAlderson/presentation-email-app
 
-            <p>
-              Cordialmente,<br>
-              <strong>Estudiantes del programa {email_data.program}</strong>
-            </p>
-          </body>
-        </html>
-        """
+Cordialmente,
+Estudiantes del programa {email_data.program}"""
 
+    #Metodo del envio del correo
     def send(self, email_data: EmailData):
-        plain_body = self.build_email_body_plain(email_data)
-        html_body = self.build_email_body_html(email_data)
-
-        self.sender.send_email(
-            to_email=email_data.recipient_email,
-            subject=email_data.subject,
-            plain_body=plain_body,
-            html_body=html_body
-        )
-
+        body = self.build_email_body(email_data)
+        self.sender.send_email(email_data, body)

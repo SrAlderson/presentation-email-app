@@ -16,7 +16,7 @@ class EmailSender:
         message["Subject"] = email_data.subject
 
         message.attach(MIMEText(body, "plain"))
-        msg.attach(MIMEText(body, "html"))
+        
 
         #Validacion si el email se envia o no
         try:
