@@ -1,28 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <title>Enviar correo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6f8;
+            padding: 40px;
+        }
+        .container {
+            max-width: 520px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.08);
+        }
+        label {
+            font-weight: 500;
+            margin-top: 12px;
+            display: block;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .error {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        .hint {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
-<h2>Presentación de Estudiantes</h2>
 
-{% with messages = get_flashed_messages() %}
-  {% for msg in messages %}
-    <p style="color:red;">{{ msg }}</p>
-  {% endfor %}
-{% endwith %}
+<div class="container">
+    <h2>Presentación de Estudiantes</h2>
 
-<form method="post">
-    <input name="recipient_email" placeholder="Correo del docente"><br>
-    <input name="recipient_name" placeholder="Nombre del docente"><br>
-    <input name="course" placeholder="Asignatura"><br>
-    <input name="program" placeholder="Programa académico"><br>
-    <input name="subject" placeholder="Asunto"><br><br>
+    {% with messages = get_flashed_messages() %}
+      {% for msg in messages %}
+        <div class="error">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
 
-    <textarea name="students" rows="6"
-        placeholder="Un estudiante por línea"></textarea><br><br>
+    <form method="post" novalidate>
 
-    <button type="submit">Enviar</button>
-</form>
+        <label>Correo del docente</label>
+        <input
+            type="email"
+            name="recipient_email"
+            placeholder="correo@ejemplo.com"
+            required
+            title="Ingrese un correo válido"
+        >
+
+        <label>Nombre del docente</label>
+        <input
+            type="text"
+            name="recipient_name"
+            required
+            minlength="3"
+            maxlength="60"
+            pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+            title="Solo letras y espacios"
+        >
+
+        <label>Asignatura</label>
+        <input
+            type="text"
+            name="course"
+            required
+            minlength="3"
+        >
+
+        <label>Programa académico</label>
+        <input
+            type="text"
+            name="program"
+            required
+            minlength="3"
+        >
+
+        <label>Asunto</label>
+        <input
+            type="text"
+            name="subject"
+            required
+            minlength="5"
+            maxlength="100"
+        >
+
+        <label>Estudiantes</label>
+        <textarea
+            name="students"
+            rows="6"
+            required
+            minlength="3"
+            placeholder="Un estudiante por línea"
+        ></textarea>
+        <div class="hint">Ejemplo: Juan Pérez</div>
+
+        <button type="submit">Enviar correo</button>
+    </form>
+</div>
+
 </body>
 </html>

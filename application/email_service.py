@@ -11,23 +11,28 @@ class EmailService:
 
     #Metodo del cuerpo del correo
     def build_email_body(self, email_data: EmailData):
-        student_list = "\n".join(f"- {student.full_name}" for student in email_data.students)
-        return f"""
-        
-            Buen día, 
+        student_list = "\r\n".join(
+          f"- {student.full_name.strip()}"  # limpio espacios extras
+          for student in email_data.students
+        )
 
-            Cordial Saludo {email_data.recipient_name},
+        # Texto del email sin indentación extra
+        return f"""Buen día,
 
-            Por medio del presente correo nos permitimos realizar la presentación de los estudiantes del programa {email_data.program},
-            quienes cursan la asignatura {email_data.course}.
+Cordial saludo {email_data.recipient_name},
 
-            Listado de estudiantes: 
-            {student_list}
+Por medio del presente correo nos permitimos realizar la presentación
+de los estudiantes del programa {email_data.program},
+quienes cursan la asignatura {email_data.course}.
 
-            Cordialmente,
-            Estudiantes del programa {email_data.program}
+Listado de estudiantes:
+{student_list}
 
-        """
+Adicionalmente esta es la URL donde esta el proyecto. 
+URL: https://github.com/SrAlderson/presentation-email-app
+
+Cordialmente,
+Estudiantes del programa {email_data.program}"""
 
     #Metodo del envio del correo
     def send(self, email_data: EmailData):

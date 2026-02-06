@@ -1,55 +1,65 @@
-#librerias
-from flask import Blueprint, render_template, request, flash, redirect,url_for
+# Librerías
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+import re
+
 from application.email_service import EmailService
 from domain.student import Student
 from domain.email_data import EmailData
 
 email_bp = Blueprint("email", __name__)
 
-#Controlador
 @email_bp.route("/", methods=["GET", "POST"])
 def send_email():
 
     if request.method == "POST":
 
-        #Campos obligatorios
-        required_fields = [
-            "recipient_email", "recipient_name", "subject",
-            "course", "program", "students"
-        ]
+        recipient_email = request.form.get("recipient_email", "").strip()
+        recipient_name = request.form.get("recipient_name", "").strip()
+        subject = request.form.get("subject", "").strip()
+        course = request.form.get("course", "").strip()
+        program = request.form.get("program", "").strip()
+        students_raw = request.form.get("students", "").strip()
 
-        #Validacion de los campos
-        for field in required_fields:
-            if not request.form.get(field):
-                flash("Todos los campos son obligatorios")
-                return redirect(url_for("email.send_email"))
+        # Validación campos obligatorios
+        if not all([
+            recipient_email, recipient_name, subject,
+            course, program, students_raw
+        ]):
+            flash("Todos los campos son obligatorios", "error")
+            return redirect(url_for("email.send_email"))
 
-        #Construccion de lista de estudiantes
+        # Validación formato correo
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", recipient_email):
+            flash("El correo electrónico no es válido", "error")
+            return redirect(url_for("email.send_email"))
+
+        # Construcción de lista de estudiantes
         students = [
             Student(name.strip())
-            for name in request.form["students"].splitlines()
+            for name in students_raw.splitlines()
             if name.strip()
         ]
 
-        if not students:
+        if len(students) == 0:
             flash("Debe ingresar al menos un estudiante", "error")
             return redirect(url_for("email.send_email"))
 
-        #Crea todo el objeto email data
+        # Crear objeto de dominio EmailData
         email_data = EmailData(
-            recipient_email=request.form["recipient_email"],
-            recipient_name=request.form["recipient_name"],
-            subject=request.form["subject"],
-            course=request.form["course"],
-            program=request.form["program"],
+            recipient_email=recipient_email,
+            recipient_name=recipient_name,
+            subject=subject,
+            course=course,
+            program=program,
             students=students
         )
 
-        #Validar el envio de email
+        # Envío del correo
         try:
             EmailService().send(email_data)
             flash("Correo enviado correctamente", "success")
-        except Exception:
+        except Exception as e:
+            print(f"Error enviando correo: {e}")
             flash("Ocurrió un error al enviar el correo", "error")
 
         return redirect(url_for("email.send_email"))
